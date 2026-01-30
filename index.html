@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Store Dashboard</title>
+
+  <!-- FONT (PENTING BIAR ELEGAN) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<h1>Store Performance Dashboard</h1>
+<button id="themeToggle" class="theme-toggle">🌙 Dark Mode</button>
+
+<div id="auto_insight" class="insight">
+  <div class="insight-title">Memuat Insight…</div>
+  <div class="insight-text">Menunggu data KPI dari Google Sheets.</div>
+</div>
+
+<div class="section-label">Financial Performance</div>
+<div class="dashboard">
+  <div class="card"><h3 id="label-mtd_sales"></h3><p id="mtd_sales">-</p></div>
+  <div class="card"><h3 id="label-target_mtd"></h3><p id="target_mtd">-</p></div>
+  <div class="card"><h3 id="label-achievment"></h3><p id="achievment">-</p></div>
+  <div class="card"><h3 id="label-gap_perf"></h3><p id="gap_perf">-</p></div>
+</div>
+
+<div class="section-label">Operational Metrics</div>
+<div class="dashboard">
+  <div class="card"><h3 id="label-traffic_avg"></h3><p id="traffic_avg">-</p></div>
+  <div class="card"><h3 id="label-apc_avg"></h3><p id="apc_avg">-</p></div>
+  <div class="card"><h3 id="label-sales_perf"></h3><p id="sales_perf">-</p></div>
+</div>
+
+<h2>Charts</h2>
+
+<h2>APC Trendline</h2>
+<div class="dashboard">
+  <div class="card">
+    <div class="chart-container">
+      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUVELGDduvSOfNHir-4BjdKxkgYtvWtCSXcaCxekRWlEGsz5hhobP3HJ4R6OP4an_wslLY1jgVLcaW/pubchart?oid=618782868&format=interactive"></iframe>
+    </div>
+  </div>
+</div>
+
+<h2>Traffic Trendline</h2>
+<div class="dashboard">
+  <div class="card">
+    <div class="chart-container">
+      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUVELGDduvSOfNHir-4BjdKxkgYtvWtCSXcaCxekRWlEGsz5hhobP3HJ4R6OP4an_wslLY1jgVLcaW/pubchart?oid=528543466&format=interactive"></iframe>
+    </div>
+  </div>
+</div>
+
+<h2>Daily Sales</h2>
+<div class="dashboard">
+  <div class="card">
+    <div class="chart-container">
+      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUVELGDduvSOfNHir-4BjdKxkgYtvWtCSXcaCxekRWlEGsz5hhobP3HJ4R6OP4an_wslLY1jgVLcaW/pubchart?oid=1501285805&format=interactive"></iframe>
+    </div>
+  </div>
+</div>
+
+<h2>Month to Month Comparison</h2>
+<div class="dashboard">
+  <div class="card">
+    <div class="chart-container">
+      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUVELGDduvSOfNHir-4BjdKxkgYtvWtCSXcaCxekRWlEGsz5hhobP3HJ4R6OP4an_wslLY1jgVLcaW/pubchart?oid=1028695600&format=interactive"></iframe>
+    </div>
+  </div>
+</div>
+
+<h2>Target vs Aktual</h2>
+<div class="dashboard">
+  <div class="card">
+    <div class="chart-container">
+      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUVELGDduvSOfNHir-4BjdKxkgYtvWtCSXcaCxekRWlEGsz5hhobP3HJ4R6OP4an_wslLY1jgVLcaW/pubchart?oid=155773484&format=interactive"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
+<script src="js/script.js"></script>
+</body>
+</html>
