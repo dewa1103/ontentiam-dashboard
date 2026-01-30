@@ -7,28 +7,33 @@ let mtdSales = null;
 let targetMtd = null;
 
 /* ================= FETCH ================= */
+function fetchData() {
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      achievement = null;
+      mtdSales = null;
+      targetMtd = null;
 
-fetch(url)
-  .then(res => res.json())
-  .then(data => {
-    data.forEach(item => {
-      const key = item.KEY;
-      const val = Number(item.VALUE);
-      const label = item.LABEL;
+      data.forEach(item => {
+        const key = item.KEY;
+        const val = Number(item.VALUE);
+        const label = item.LABEL;
 
-      if (key === "achievment") achievement = val;
-      if (key === "mtd_sales") mtdSales = val;
-      if (key === "target_mtd") targetMtd = val;
+        if (key === "achievment") achievement = val;
+        if (key === "mtd_sales") mtdSales = val;
+        if (key === "target_mtd") targetMtd = val;
 
-      renderSingle(key, val, label);
-    });
+        renderSingle(key, val, label);
+      });
 
-    renderGapPerf();
-    buildInsight();
-    updateLastUpdated();
+      renderGapPerf();
+      buildInsight();
+      updateLastUpdated();
+    })
+    .catch(err => console.error("FETCH ERROR:", err));
+}
 
-  })
-  .catch(err => console.error("FETCH ERROR:", err));
 
 /* ================= RENDER ================= */
 
@@ -184,3 +189,5 @@ function updateLastUpdated() {
 
   el.innerText = `Last updated: ${formatted}`;
 }
+fetchData();
+setInterval(fetchData, 5 * 60 * 1000);
