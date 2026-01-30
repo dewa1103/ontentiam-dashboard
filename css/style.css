@@ -236,4 +236,10 @@ h2 { font-size: 22px; margin: 56px 0 20px; }
 .card:hover::before {
   opacity: 1;
 }
+.last-updated {
+  margin-bottom: 24px;
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+}
 

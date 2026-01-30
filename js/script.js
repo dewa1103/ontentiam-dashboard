@@ -25,6 +25,8 @@ fetch(url)
 
     renderGapPerf();
     buildInsight();
+    updateLastUpdated();
+
   })
   .catch(err => console.error("FETCH ERROR:", err));
 
@@ -167,3 +169,18 @@ document.querySelectorAll(".card").forEach(card => {
     card.style.setProperty("--y", `${y}px`);
   });
 });
+function updateLastUpdated() {
+  const el = document.getElementById("lastUpdated");
+  if (!el) return;
+
+  const now = new Date();
+  const formatted = now.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  el.innerText = `Last updated: ${formatted}`;
+}
