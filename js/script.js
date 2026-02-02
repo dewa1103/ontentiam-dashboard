@@ -1,48 +1,125 @@
 const sheetId = "1mLHUXCursVGUr63zwVD3qw5HCaC5G7ot5TFWsumO1a8";
-const sheetName = "Sheets 1";
-const url = `https://opensheet.elk.sh/${sheetId}/${encodeURIComponent(sheetName)}`;
+
+// KPI
+const kpiSheet = "Sheets 1";
+const kpiUrl = `https://opensheet.elk.sh/${sheetId}/${encodeURIComponent(kpiSheet)}`;
+
+// PRODUCT
+const productSheet = "TOP_10_PRODUCT";
+const productUrl = `https://opensheet.elk.sh/${sheetId}/${encodeURIComponent(productSheet)}`;
 
 let achievement = null;
 let mtdSales = null;
 let targetMtd = null;
 
-/* ================= FETCH ================= */
-function fetchData() {
-  fetch(url)
+/* ================= FETCH KPI ================= */
+function fetchKPI() {
+  fetch(kpiUrl)
     .then(res => res.json())
     .then(data => {
       achievement = null;
       mtdSales = null;
       targetMtd = null;
 
-      data.forEach(item => {
-        const key = item.KEY;
-        const val = Number(item.VALUE);
-        const label = item.LABEL;
+      data
+        .filter(item => item.KEY && item.VALUE)
+        .forEach(item => {
+          const key = item.KEY;
+          let val = Number(item.VALUE);
+          const label = item.LABEL;
 
-        if (key === "achievment") achievement = val;
-        if (key === "mtd_sales") mtdSales = val;
-        if (key === "target_mtd") targetMtd = val;
+          // NORMALISASI ACHIEVEMENT
+          if (key === "achievment") {
+            if (val > 1) val = val / 100;
+            achievement = val;
+          }
 
-        renderSingle(key, val, label);
-      });
+          if (key === "mtd_sales") mtdSales = val;
+          if (key === "target_mtd") targetMtd = val;
+
+          renderSingle(key, val, label);
+        });
 
       renderGapPerf();
+      renderSalesVsTarget();
       buildInsight();
       updateLastUpdated();
     })
-    .catch(err => console.error("FETCH ERROR:", err));
+    .catch(err => console.error("KPI FETCH ERROR:", err));
 }
 
+/* ================= FETCH PRODUCT ================= */
+function fetchProducts() {
+  fetch(productUrl)
+    .then(res => res.json())
+    .then(data => renderTop10Products(data))
+    .catch(err => {
+      console.error("PRODUCT FETCH ERROR:", err);
+      document.getElementById("top10-products").innerHTML =
+        "<li>Data produk tidak tersedia</li>";
+    });
+}
 
-/* ================= RENDER ================= */
+/* ================= TOP 10 PRODUCT ================= */
+function renderTop10Products(data) {
+  const list = document.getElementById("top10-products");
+  if (!list) return;
 
+  list.innerHTML = "";
+
+  const products = data
+    .filter(p => p.PRODUCT && p.QTY && !isNaN(Number(p.QTY)))
+    .map(p => ({ name: p.PRODUCT, qty: Number(p.QTY) }))
+    .sort((a, b) => b.qty - a.qty)
+    .slice(0, 10);
+
+  if (!products.length) {
+    list.innerHTML = "<li>Data produk tidak tersedia</li>";
+    return;
+  }
+
+  products.forEach(item => {
+    const li = document.createElement("li");
+    li.innerText = `${item.name} — ${item.qty}`;
+    list.appendChild(li);
+  });
+}
+
+/* ================= KPI HELPERS ================= */
 function renderSingle(key, val, label) {
   set(`label-${key}`, label);
-  set(key, format(val, key), key, val);
+  const el = document.getElementById(key);
+  if (!el) return;
+
+  el.innerText = format(val, key);
+  el.className = "";
+
+  // achievement coloring
+  if (key === "achievment") {
+    if (val < 0.7) el.classList.add("danger");
+    else if (val < 1) el.classList.add("warning");
+    else el.classList.add("success");
+  }
+
+  // growth / decline coloring
+  if (key === "sales_perf") {
+    if (val < 0) el.classList.add("danger");
+    else el.classList.add("success");
+  }
 }
 
-/* ================= GAP PERF ================= */
+/* ================= SALES VS TARGET ================= */
+function renderSalesVsTarget() {
+  if (mtdSales === null || targetMtd === null) return;
+
+  const el = document.getElementById("mtd_sales");
+  if (!el) return;
+
+  el.classList.remove("danger", "success", "warning");
+
+  if (mtdSales < targetMtd) el.classList.add("danger");
+  else el.classList.add("success");
+}
 
 function renderGapPerf() {
   if (achievement === null) return;
@@ -52,11 +129,8 @@ function renderGapPerf() {
   if (!el) return;
 
   el.innerText = (gap * 100).toFixed(2) + "%";
-  el.classList.remove("danger", "success");
-  el.classList.add(gap > 0 ? "danger" : "success");
+  el.className = gap > 0 ? "danger" : "success";
 }
-
-/* ================= AUTO INSIGHT ================= */
 
 function buildInsight() {
   const box = document.getElementById("auto_insight");
@@ -66,128 +140,57 @@ function buildInsight() {
   const text = box.querySelector(".insight-text");
   const percent = achievement * 100;
 
-  box.classList.remove("success", "warning", "danger");
+  box.className = "insight";
 
   if (achievement >= 1) {
     box.classList.add("success");
     title.innerText = "Target Tercapai 🎉";
     text.innerText =
-      "Performa bulan ini sangat baik. Fokus ke konsistensi dan scaling.";
-    return;
-  }
-
-  if (achievement >= 0.8) {
+      "Performa bulan ini sangat baik. Pertahankan konsistensi operasional dan kualitas produk.";
+  } else if (achievement >= 0.8) {
     box.classList.add("warning");
     title.innerText = "Mendekati Target";
     text.innerText =
-      `Pencapaian ${percent.toFixed(1)}%. Dorong penjualan harian untuk menutup gap.`;
-    return;
-  }
-
-  box.classList.add("danger");
-  title.innerText = "Performa Perlu Ditingkatkan";
-  text.innerText =
-    `Baru tercapai ${percent.toFixed(1)}%. Perlu evaluasi traffic, APC, dan strategi harian.`;
-}
-
-/* ================= DOM HELPERS ================= */
-
-function set(id, text, key, val) {
-  const el = document.getElementById(id);
-  if (!el) return;
-
-  el.innerText = text;
-  if (key) colorize(el, key, val);
-}
-
-function colorize(el, key, val) {
-  el.classList.remove("danger", "warning", "success");
-
-  if (key === "achievment") {
-    if (val < 0.8) el.classList.add("danger");
-    else if (val < 1) el.classList.add("warning");
-    else el.classList.add("success");
-  }
-
-  if (key === "sales_perf") {
-    if (val > 0) el.classList.add("success");
-    else if (val < 0) el.classList.add("danger");
+      `Pencapaian ${percent.toFixed(1)}%. Dorong traffic dan optimalkan APC untuk menutup gap.`;
+  } else {
+    box.classList.add("danger");
+    title.innerText = "Performa Perlu Ditingkatkan";
+    text.innerText =
+      `Baru tercapai ${percent.toFixed(1)}%. Perlu evaluasi traffic, APC, dan strategi harian.`;
   }
 }
 
 /* ================= FORMAT ================= */
-
 function format(num, key) {
   if (["mtd_sales", "target_mtd", "apc_avg"].includes(key))
     return "Rp " + num.toLocaleString("id-ID");
 
-  if (key === "achievment" || key === "sales_perf")
-    return (num * 100).toFixed(2) + "%";
-
   if (key === "traffic_avg")
     return Math.round(num).toLocaleString("id-ID");
 
-  return num;
+  if (["achievment", "sales_perf"].includes(key))
+    return (num * 100).toFixed(2) + "%";
+
+  return num.toLocaleString("id-ID");
 }
 
-console.log("✅ DASHBOARD FINAL — UI STABLE — KPI & INSIGHT FIXED");
-/* ================= THEME TOGGLE ================= */
-
-const toggleBtn = document.getElementById("themeToggle");
-const savedTheme = localStorage.getItem("theme");
-
-if (savedTheme === "light") {
-  document.body.classList.add("light");
-  toggleBtn.innerText = "☀️ Light Mode";
-}
-
-toggleBtn.addEventListener("click", () => {
-  document.body.classList.toggle("light");
-
-  const isLight = document.body.classList.contains("light");
-  toggleBtn.innerText = isLight ? "☀️ Light Mode" : "🌙 Dark Mode";
-  localStorage.setItem("theme", isLight ? "light" : "dark");
-});
-const insight = document.querySelector(".insight");
-
-if (insight) {
-  insight.addEventListener("mousemove", e => {
-    const rect = insight.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    insight.style.setProperty("--x", `${x}px`);
-    insight.style.setProperty("--y", `${y}px`);
-  });
-}
-/* ===============================
-   CURSOR TRACKING FOR ALL CARDS
-================================ */
-
-document.querySelectorAll(".card").forEach(card => {
-  card.addEventListener("mousemove", e => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    card.style.setProperty("--x", `${x}px`);
-    card.style.setProperty("--y", `${y}px`);
-  });
-});
-function updateLastUpdated() {
-  const el = document.getElementById("lastUpdated");
+/* ================= DOM ================= */
+function set(id, text) {
+  const el = document.getElementById(id);
   if (!el) return;
-
-  const now = new Date();
-  const formatted = now.toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-
-  el.innerText = `Last updated: ${formatted}`;
+  el.innerText = text;
 }
-fetchData();
-setInterval(fetchData, 5 * 60 * 1000);
+
+/* ================= LAST UPDATED ================= */
+function updateLastUpdated() {
+  document.getElementById("lastUpdated").innerText =
+    "Last updated: " + new Date().toLocaleString("id-ID");
+}
+
+/* ================= INIT ================= */
+fetchKPI();
+fetchProducts();
+setInterval(() => {
+  fetchKPI();
+  fetchProducts();
+}, 5 * 60 * 1000);
