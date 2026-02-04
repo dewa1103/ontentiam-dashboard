@@ -62,28 +62,50 @@ function fetchProducts() {
 
 /* ================= TOP 10 PRODUCT ================= */
 function renderTop10Products(data) {
-  const list = document.getElementById("top10-products");
-  if (!list) return;
+  const container = document.getElementById("top10-products");
+  if (!container) return;
 
-  list.innerHTML = "";
+  container.innerHTML = "";
 
   const products = data
     .filter(p => p.PRODUCT && p.QTY && !isNaN(Number(p.QTY)))
-    .map(p => ({ name: p.PRODUCT, qty: Number(p.QTY) }))
+    .map(p => ({
+      name: p.PRODUCT,
+      qty: Number(p.QTY)
+    }))
     .sort((a, b) => b.qty - a.qty)
     .slice(0, 10);
 
   if (!products.length) {
-    list.innerHTML = "<li>Data produk tidak tersedia</li>";
+    container.innerHTML = "<div class='product-loading'>Data produk tidak tersedia</div>";
     return;
   }
 
-  products.forEach(item => {
-    const li = document.createElement("li");
-    li.innerText = `${item.name} — ${item.qty}`;
-    list.appendChild(li);
+  const maxQty = products[0].qty;
+
+  products.forEach((item, index) => {
+    const percent = (item.qty / maxQty) * 100;
+
+    const row = document.createElement("div");
+    row.className = "product-row";
+
+    row.innerHTML = `
+      <div class="product-rank">${index + 1}</div>
+
+      <div class="product-info">
+        <div class="product-name">${item.name}</div>
+        <div class="product-bar">
+          <span style="width:${percent}%"></span>
+        </div>
+      </div>
+
+      <div class="product-qty">${item.qty}</div>
+    `;
+
+    container.appendChild(row);
   });
 }
+
 
 /* ================= KPI HELPERS ================= */
 function renderSingle(key, val, label) {

@@ -236,10 +236,84 @@ h2 { font-size: 22px; margin: 56px 0 20px; }
 .card:hover::before {
   opacity: 1;
 }
-.last-updated {
-  margin-bottom: 24px;
-  font-size: 12px;
+/* ===============================
+   PRODUCT PERFORMANCE – PRO
+================================ */
+
+.product-card {
+  grid-column: 1 / -1;
+}
+
+.product-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.product-loading {
   color: var(--text-muted);
-  letter-spacing: 0.3px;
+  font-size: 14px;
+}
+
+/* ROW */
+.product-row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  transition: all 0.25s ease;
+}
+
+.product-row:hover {
+  transform: translateX(4px);
+  background: rgba(255,255,255,0.08);
+}
+
+/* RANK */
+.product-rank {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* INFO */
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* BAR */
+.product-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.product-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--success),
+    rgba(61,255,159,0.6)
+  );
+  border-radius: 999px;
+}
+
+/* QTY */
+.product-qty {
+  font-size: 14px;
+  font-weight: 700;
 }
 
