@@ -216,3 +216,24 @@ setInterval(() => {
   fetchKPI();
   fetchProducts();
 }, 5 * 60 * 1000);
+/* ================= THEME TOGGLE ================= */
+const toggleBtn = document.getElementById("themeToggle");
+const body = document.body;
+
+// load saved theme
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme === "light") {
+  body.classList.add("light");
+  toggleBtn.innerText = "🌙 Dark Mode";
+} else {
+  toggleBtn.innerText = "☀️ Light Mode";
+}
+
+toggleBtn.addEventListener("click", () => {
+  body.classList.toggle("light");
+
+  const isLight = body.classList.contains("light");
+  localStorage.setItem("theme", isLight ? "light" : "dark");
+
+  toggleBtn.innerText = isLight ? "🌙 Dark Mode" : "☀️ Light Mode";
+});
