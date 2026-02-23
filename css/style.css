@@ -210,6 +210,86 @@ h2 { font-size: 22px; margin: 56px 0 20px; }
   backdrop-filter: blur(6px);
 }
 /* ===============================
+   PERFORMANCE ALARM SYSTEM
+================================= */
+.alarm {
+  margin: 24px 0 40px;
+  padding: 24px;
+  border-radius: 18px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  transition: all 0.35s ease;
+}
+
+.alarm-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.alarm-status {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.alarm-message {
+  font-size: 14px;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+}
+
+.alarm-bar {
+  height: 8px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.alarm-bar div {
+  height: 100%;
+  width: 0%;
+  transition: 0.4s ease;
+  border-radius: 999px;
+}
+/* Glow sesuai status */
+.alarm.success { ... }
+.alarm.warning { ... }
+.alarm.danger { ... }
+
+
+.alarm.warning {
+  box-shadow:
+    0 0 0 1px rgba(255,204,0,0.4),
+    0 0 30px rgba(255,204,0,0.25);
+}
+
+.alarm.danger {
+  box-shadow:
+    0 0 0 1px rgba(255,95,95,0.4),
+    0 0 30px rgba(255,95,95,0.25);
+}
+{
+  height: 100%;
+  width: 0%;
+  transition: 0.4s ease;
+  border-radius: 999px;
+}
+@keyframes pulseDanger {
+  0% { box-shadow: 0 0 0 0 rgba(255,95,95,0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(255,95,95,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,95,95,0); }
+}
+
+.alarm.danger {
+  animation: pulseDanger 1.5s infinite;
+}
+
+
+/* ===============================
    CURSOR LIGHT — APPLE STYLE
    APPLY TO ALL CARDS
 ================================ */

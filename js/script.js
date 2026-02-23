@@ -29,7 +29,7 @@ function fetchKPI() {
           const label = item.LABEL;
 
           // NORMALISASI ACHIEVEMENT
-          if (key === "achievment") {
+          if (key === "achievement") {
             if (val > 1) val = val / 100;
             achievement = val;
           }
@@ -43,6 +43,7 @@ function fetchKPI() {
       renderGapPerf();
       renderSalesVsTarget();
       buildInsight();
+      buildPerformanceAlarm(data);
       updateLastUpdated();
     })
     .catch(err => console.error("KPI FETCH ERROR:", err));
@@ -117,7 +118,7 @@ function renderSingle(key, val, label) {
   el.className = "";
 
   // achievement coloring
-  if (key === "achievment") {
+  if (key === "achievement") {
     if (val < 0.7) el.classList.add("danger");
     else if (val < 1) el.classList.add("warning");
     else el.classList.add("success");
@@ -146,13 +147,19 @@ function renderSalesVsTarget() {
 function renderGapPerf() {
   if (achievement === null) return;
 
-  const gap = 1 - achievement;
   const el = document.getElementById("gap_perf");
   if (!el) return;
 
-  el.innerText = (gap * 100).toFixed(2) + "%";
-  el.className = gap > 0 ? "danger" : "success";
+  if (achievement >= 1) {
+    el.innerText = "0%";
+    el.className = "success";
+  } else {
+    const gap = (1 - achievement) * 100;
+    el.innerText = gap.toFixed(2) + "%";
+    el.className = "danger";
+  }
 }
+
 
 function buildInsight() {
   const box = document.getElementById("auto_insight");
@@ -181,6 +188,69 @@ function buildInsight() {
       `Baru tercapai ${percent.toFixed(1)}%. Perlu evaluasi traffic, APC, dan strategi harian.`;
   }
 }
+function buildPerformanceAlarm(data) {
+  const ratioRaw = data.find(d => d.KEY === "pressure_ratio")?.VALUE;
+  const forecastRaw = data.find(d => d.KEY === "forecast_end_month")?.VALUE;
+  const targetRaw = data.find(d => d.KEY === "target_mtd")?.VALUE;
+
+ if (!ratioRaw) return;
+
+
+  const ratio = Number(ratioRaw);
+  const forecast = Number(forecastRaw);
+  const target = Number(targetRaw);
+
+  const alarmBox = document.getElementById("performance_alarm");
+  const statusEl = document.getElementById("alarm_status");
+  const messageEl = document.getElementById("alarm_message");
+  const barFill = document.getElementById("alarm_bar_fill");
+
+  // RESET CLASS
+  alarmBox.classList.remove("success", "warning", "danger");
+
+  
+
+  let color = "";
+  let message = "";
+// LOGIC BERDASARKAN RATIO
+if (ratio <= 1) {
+  color = "var(--success)";
+  statusEl.innerText = "ON TRACK";
+  message = "Momentum stabil. Target aman tercapai.";
+  alarmBox.classList.add("success");
+} 
+else if (ratio <= 3) {
+  color = "var(--warning)";
+  statusEl.innerText = "HEAVY";
+  message = "Tekanan meningkat. Perlu dorongan performa harian.";
+  alarmBox.classList.add("warning");
+} 
+else {
+  color = "var(--danger)";
+  statusEl.innerText = "CRITICAL";
+  message = "Kondisi kritis. Butuh akselerasi besar untuk mengejar target.";
+  alarmBox.classList.add("danger");
+}
+
+  // Tambah info GAP ke target
+  if (!isNaN(forecast) && !isNaN(target)) {
+    const gap = target - forecast;
+    if (gap > 0) {
+      message += ` Gap ke target: Rp ${gap.toLocaleString("id-ID")}`;
+    }
+  }
+
+  statusEl.style.color = color;
+  barFill.style.background = color;
+
+  const width = Math.min(ratio * 20, 100);
+  barFill.style.width = width + "%";
+
+  messageEl.innerText =
+    `${ratio.toFixed(1)}x tekanan terhadap performa rata-rata saat ini. ${message}`;
+}
+
+
 
 /* ================= FORMAT ================= */
 function format(num, key) {
@@ -190,8 +260,11 @@ function format(num, key) {
   if (key === "traffic_avg")
     return Math.round(num).toLocaleString("id-ID");
 
-  if (["achievment", "sales_perf"].includes(key))
-    return (num * 100).toFixed(2) + "%";
+  if (["achievement", "sales_perf"].includes(key)) {
+  const percent = (num * 100).toFixed(2);
+  return (num > 0 ? "+" : "") + percent + "%";
+}
+
 
   return num.toLocaleString("id-ID");
 }
